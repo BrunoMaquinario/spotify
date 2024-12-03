@@ -8,3 +8,4 @@ Route::get('/login', [SpotifyController::class, 'login'])->name('spotify.login')
 Route::get('/callback', [SpotifyController::class, 'callback'])->name('spotify.callback');
 Route::get('/top-artists', [SpotifyController::class, 'getTopArtists'])->name('spotify.top_artists');
 Route::get('/top-tracks', [SpotifyController::class, 'getTopTracks'])->name('spotify.top_tracks');
+Route::post('/logout', [SpotifyController::class, 'logout'])->name('spotify.logout');

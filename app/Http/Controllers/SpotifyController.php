@@ -14,17 +14,19 @@ class SpotifyController extends Controller
     }
 
     public function login()
-    {
-        $url = "https://accounts.spotify.com/authorize";
-        $params = [
-            'client_id' => env('SPOTIFY_CLIENT_ID'),
-            'response_type' => 'code',
-            'redirect_uri' => env('SPOTIFY_REDIRECT_URI'),
-            'scope' => 'user-top-read',
-        ];
+{
+    $url = "https://accounts.spotify.com/authorize";
+    $params = [
+        'client_id' => env('SPOTIFY_CLIENT_ID'),
+        'response_type' => 'code',
+        'redirect_uri' => env('SPOTIFY_REDIRECT_URI'),
+        'scope' => 'user-top-read',
+        'show_dialog' => 'true',  // Força o Spotify a perguntar se o usuário deseja usar a mesma conta ou outra
+    ];
 
-        return redirect($url . '?' . http_build_query($params));
-    }
+    return redirect($url . '?' . http_build_query($params));
+}
+
 
     public function callback(Request $request)
     {
@@ -55,6 +57,7 @@ class SpotifyController extends Controller
             'limit' => 50,
             'time_range' => $timeRange,
         ]);
+        dd([$accessToken, $timeRange, $artistsResponse]);
     
         $topArtists = $artistsResponse->json()['items'];
     
@@ -78,5 +81,12 @@ class SpotifyController extends Controller
     
         return view('top_tracks', compact('topTracks', 'timeRange'));
     }
+
+    public function logout()
+{
+    Session::forget('spotify_access_token');
+    return redirect()->route('home');
+}
+
     
 }

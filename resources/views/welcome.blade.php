@@ -12,20 +12,28 @@
 
     @extends('app')
 
-@section('content')
-    <div class="flex justify-center items-center min-h-screen">
-        @if (session('spotify_access_token'))
-            <div class="text-center">
-                <a href="{{ route('spotify.top_artists') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Ver meus Top 50 Artistas</a>
-                <a href="{{ route('spotify.top_tracks') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg mt-4 block">Ver minhas Top 50 Músicas</a>
-            </div>
-        @else
-            <div class="text-center">
-                <a href="{{ route('spotify.login') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Login com Spotify</a>
-            </div>
-        @endif
-    </div>
-@endsection
+    @extends('app')
+
+    @section('content')
+        <div class="flex justify-center items-center min-h-screen">
+            @if (session('spotify_access_token'))
+                <div class="text-center">
+                    <a href="{{ route('spotify.top_artists') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Ver meus Top 50 Artistas</a>
+                    <a href="{{ route('spotify.top_tracks') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg mt-4 block">Ver minhas Top 50 Músicas</a>
+                    <!-- Botão de Logout -->
+                    <form action="{{ route('spotify.logout') }}" method="POST" class="mt-4">
+                        @csrf
+                        <button type="submit" class="px-6 py-3 bg-red-500 text-white rounded-full text-lg">Logout</button>
+                    </form>
+                </div>
+            @else
+                <div class="text-center">
+                    <a href="{{ route('spotify.login') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Login com Spotify</a>
+                </div>
+            @endif
+        </div>
+    @endsection
+    
 
 </body>
 </html>
