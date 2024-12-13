@@ -1,4 +1,4 @@
-SpotifyController.php
+spotifycontroller.php
 
 <?php
 
@@ -16,17 +16,19 @@ class SpotifyController extends Controller
     }
 
     public function login()
-    {
-        $url = "https://accounts.spotify.com/authorize";
-        $params = [
-            'client_id' => env('SPOTIFY_CLIENT_ID'),
-            'response_type' => 'code',
-            'redirect_uri' => env('SPOTIFY_REDIRECT_URI'),
-            'scope' => 'user-top-read',
-        ];
+{
+    $url = "https://accounts.spotify.com/authorize";
+    $params = [
+        'client_id' => env('SPOTIFY_CLIENT_ID'),
+        'response_type' => 'code',
+        'redirect_uri' => env('SPOTIFY_REDIRECT_URI'),
+        'scope' => 'user-top-read',
+        'show_dialog' => 'true',  // Força o Spotify a perguntar se o usuário deseja usar a mesma conta ou outra
+    ];
 
-        return redirect($url . '?' . http_build_query($params));
-    }
+    return redirect($url . '?' . http_build_query($params));
+}
+
 
     public function callback(Request $request)
     {
@@ -80,24 +82,17 @@ class SpotifyController extends Controller
     
         return view('top_tracks', compact('topTracks', 'timeRange'));
     }
+
+    public function logout()
+{
+    Session::forget('spotify_access_token');
+    return redirect()->route('home');
+}
+
     
 }
 
-web.php
-
-<?php
-
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SpotifyController;
-
-Route::get('/', [SpotifyController::class, 'index'])->name('home');
-Route::get('/login', [SpotifyController::class, 'login'])->name('spotify.login');
-Route::get('/callback', [SpotifyController::class, 'callback'])->name('spotify.callback');
-Route::get('/top-artists', [SpotifyController::class, 'getTopArtists'])->name('spotify.top_artists');
-Route::get('/top-tracks', [SpotifyController::class, 'getTopTracks'])->name('spotify.top_tracks');
-
-
-app.blade.php
+app.blad.php
 
 <!-- resources/views/app.blade.php -->
 <!DOCTYPE html>
@@ -121,7 +116,8 @@ app.blade.php
 </body>
 </html>
 
-dashaboard.blade.php
+
+dashboard.blade.php
 
 @extends('app')
 
@@ -161,6 +157,7 @@ dashaboard.blade.php
         </div>
     </div>
 @endsection
+
 
 top_artists.blade.php
 
@@ -243,22 +240,46 @@ welcome.blade.php
 
     @extends('app')
 
-@section('content')
-    <div class="flex justify-center items-center min-h-screen">
-        @if (session('spotify_access_token'))
-            <div class="text-center">
-                <a href="{{ route('spotify.top_artists') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Ver meus Top 50 Artistas</a>
-                <a href="{{ route('spotify.top_tracks') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg mt-4 block">Ver minhas Top 50 Músicas</a>
-            </div>
-        @else
-            <div class="text-center">
-                <a href="{{ route('spotify.login') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Login com Spotify</a>
-            </div>
-        @endif
-    </div>
-@endsection
+    @extends('app')
+
+    @section('content')
+        <div class="flex justify-center items-center min-h-screen">
+            @if (session('spotify_access_token'))
+                <div class="text-center">
+                    <a href="{{ route('spotify.top_artists') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Ver meus Top 50 Artistas</a>
+                    <a href="{{ route('spotify.top_tracks') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg mt-4 block">Ver minhas Top 50 Músicas</a>
+                    <!-- Botão de Logout -->
+                    <form action="{{ route('spotify.logout') }}" method="POST" class="mt-4">
+                        @csrf
+                        <button type="submit" class="px-6 py-3 bg-red-500 text-white rounded-full text-lg">Logout</button>
+                    </form>
+                </div>
+            @else
+                <div class="text-center">
+                    <a href="{{ route('spotify.login') }}" class="px-6 py-3 bg-green-500 text-white rounded-full text-lg">Login com Spotify</a>
+                </div>
+            @endif
+        </div>
+    @endsection
+    
 
 </body>
 </html>
 
-quero criar uma parte de logout e sempre quando eu for logar com o spotify retornar a pagina oficial do spotify, que pergunta se eu quero a mesma conta ou usar outra
+
+web.php
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SpotifyController;
+
+Route::get('/', [SpotifyController::class, 'index'])->name('home');
+Route::get('/login', [SpotifyController::class, 'login'])->name('spotify.login');
+Route::get('/callback', [SpotifyController::class, 'callback'])->name('spotify.callback');
+Route::get('/top-artists', [SpotifyController::class, 'getTopArtists'])->name('spotify.top_artists');
+Route::get('/top-tracks', [SpotifyController::class, 'getTopTracks'])->name('spotify.top_tracks');
+Route::post('/logout', [SpotifyController::class, 'logout'])->name('spotify.logout');
+
+
+com base nesse codigo, desenvolva uma função de criar playlist com as top 50 musicas

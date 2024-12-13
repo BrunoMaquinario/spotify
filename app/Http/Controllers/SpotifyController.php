@@ -57,7 +57,6 @@ class SpotifyController extends Controller
             'limit' => 50,
             'time_range' => $timeRange,
         ]);
-        dd([$accessToken, $timeRange, $artistsResponse]);
     
         $topArtists = $artistsResponse->json()['items'];
     
